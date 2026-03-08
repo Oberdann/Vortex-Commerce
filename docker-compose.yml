@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql 
+
+  api-gateway:
+    build: ./services/vortex-api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    # depends_on:
+    #   - users-service
+    #   - products-service
+    #   - orders-service
+    #   - payments-service
+    environment:
+      NODE_ENV: development
+
+  users-service:
+    build: ./services/vortex-users-service
+    container_name: users-service
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${USERS_DB_URL}
+    depends_on:
+      - postgres
+
+  products-service:
+    build: ./services/vortex-products-service
+    container_name: products-service
+    ports:
+      - "3002:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${PRODUCTS_DB_URL}
+    depends_on:
+      - postgres
+
+  orders-service:
+    build: ./services/vortex-orders-service
+    container_name: orders-service
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${ORDERS_DB_URL}
+    depends_on:
+      - postgres
+
+  payments-service:
+    build: ./services/vortex-payments-service
+    container_name: payments-service
+    ports:
+      - "3004:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${PAYMENTS_DB_URL}
+    depends_on:
+      - postgres
+
+volumes:
+  postgres-data:
