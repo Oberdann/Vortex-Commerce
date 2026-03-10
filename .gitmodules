@@ -1,3 +1,6 @@
 [submodule "services/vortex-api-gateway"]
 	path = services/vortex-api-gateway
 	url = https://github.com/Oberdann/Vortex-API-Gateway.git
+[submodule "services/vortex-products"]
+	path = services/vortex-products
+	url = https://github.com/Oberdann/Vortex-Products.git
