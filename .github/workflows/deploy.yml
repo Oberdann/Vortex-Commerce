@@ -15,9 +15,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build containers
-        run: docker compose build
-
       - name: Deploy na VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
