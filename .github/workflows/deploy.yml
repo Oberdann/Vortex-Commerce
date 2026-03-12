@@ -35,6 +35,7 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
-          cloudflared access ssh --hostname ${{ secrets.VPS_HOST }} --url ssh://${{ secrets.USER }}@${{ secrets.VPS_HOST }}:22 --loglevel debug
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${{ secrets.USER }}@${{ secrets.VPS_HOST }} \
+          ssh -T -o StrictHostKeyChecking=no \
+              -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.VPS_HOST }} --service-token-id ${{ secrets.TUNNEL_SERVICE_AUTH_ID }} --service-token-secret ${{ secrets.TUNNEL_SERVICE_AUTH_SECRET }}" \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
               "set -e && cd vortex-commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
