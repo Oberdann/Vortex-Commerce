@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout repo com submodules
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -21,22 +21,15 @@ jobs:
           curl -LO https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
           sudo chmod +x /usr/local/bin/cloudflared
-          cloudflared version
 
       - name: Setup SSH Key
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
       - name: Deploy via Cloudflare Tunnel
-        env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_HOST: ssh.pedrolg.site
         run: |
-          ssh -o ProxyCommand="cloudflared access ssh --hostname $VPS_HOST --service-token-id $CF_ACCESS_CLIENT_ID --service-token-secret $CF_ACCESS_CLIENT_SECRET %h:%p" \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              $VPS_USER@$VPS_HOST \
+          ssh -T -o StrictHostKeyChecking=no \
+              -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.VPS_HOST }} --service-token-id ${{ secrets.CF_CLIENT_ID }} --service-token-secret ${{ secrets.CF_SECRET_SECRET }}" \
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
               "set -e && cd vortex-commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
