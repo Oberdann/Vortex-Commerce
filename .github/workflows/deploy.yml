@@ -29,8 +29,8 @@ jobs:
 
       - name: Deploy via Cloudflare Tunnel
         env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.TUNNEL_SERVICE_AUTH_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.TUNNEL_SERVICE_AUTH_SECRET }}
+          CF_Access_Client_Id: ${{ secrets.CF_CLIENT_ID }}
+          CF_Access_Client_Secret: ${{ secrets.CF_CLIENT_SECRET }}
         run: |
           ssh -T -o StrictHostKeyChecking=no \
               -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.VPS_HOST }}" \
