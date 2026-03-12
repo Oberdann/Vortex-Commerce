@@ -35,6 +35,6 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
-          cloudflared access ssh --hostname $VPS_HOST --url ssh://$VPS_USER@$VPS_HOST:22 --loglevel debug
-          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 $VPS_USER@$VPS_HOST \
+          cloudflared access ssh --hostname ${{ secrets.VPS_HOST }} --url ssh://${{ secrets.USER }}@${{ secrets.VPS_HOST }}:22 --loglevel debug
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 ${{ secrets.USER }}@${{ secrets.VPS_HOST }} \
               "set -e && cd vortex-commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
