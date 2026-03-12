@@ -32,13 +32,7 @@ jobs:
           TUNNEL_SERVICE_AUTH_ID: ${{ secrets.CF_CLIENT_ID }}
           TUNNEL_SERVICE_AUTH_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
         run: |
-          # Adicionado StrictHostKeyChecking=no para não travar na primeira conexão
-          ssh -o StrictHostKeyChecking=no \
+          ssh -T -o StrictHostKeyChecking=no \
               -o ProxyCommand="cloudflared access ssh --hostname ${{ secrets.VPS_HOST }}" \
-              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-          set -e
-          cd vortex-commerce
-          git pull
-          git submodule update --init --recursive
-          docker compose up -d --build
-          EOF # <-- Faltava fechar o bloco aqui
+              ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
+              "set -e && cd vortex-commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
