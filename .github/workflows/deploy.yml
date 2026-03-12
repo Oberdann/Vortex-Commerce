@@ -35,10 +35,8 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           VPS_HOST: ssh.pedrolg.site
         run: |
-          cloudflared access ssh \
-            --hostname $VPS_HOST \
-            --service-token-id $CF_ACCESS_CLIENT_ID \
-            --service-token-secret $CF_ACCESS_CLIENT_SECRET \
-            --url ssh://$VPS_USER@$VPS_HOST:22 \
-            --loglevel debug \
-            --command "set -e && cd vortex-commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
+          ssh -o ProxyCommand="cloudflared access ssh --hostname $VPS_HOST --service-token-id $CF_ACCESS_CLIENT_ID --service-token-secret $CF_ACCESS_CLIENT_SECRET %h:%p" \
+              -o StrictHostKeyChecking=no \
+              -o UserKnownHostsFile=/dev/null \
+              $VPS_USER@$VPS_HOST \
+              "set -e && cd vortex-commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
