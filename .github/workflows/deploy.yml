@@ -38,4 +38,4 @@ jobs:
           ssh -v -T -o StrictHostKeyChecking=no \
               -o ProxyCommand="cloudflared access ssh --hostname $VPS_HOST --service-token-id $CF_ACCESS_CLIENT_ID --service-token-secret $CF_ACCESS_CLIENT_SECRET" \
               $VPS_USER@$VPS_HOST \
-              "set -e && cd Vortex-Commerce && git pull && git submodule update --init --recursive && docker compose up -d --build"
+              "set -e && cd Vortex-Commerce && git pull && git submodule update --init --recursive && docker compose up -d --build --no-cache"
