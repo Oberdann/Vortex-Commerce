@@ -39,7 +39,15 @@ jobs:
               -o ProxyCommand="cloudflared access ssh --hostname $VPS_HOST --service-token-id $CF_ACCESS_CLIENT_ID --service-token-secret $CF_ACCESS_CLIENT_SECRET" \
               $VPS_USER@$VPS_HOST \
               "set -e && cd Vortex-Commerce && \
-               git pull && \
-               git submodule update --init --recursive && \
-               docker compose build --no-cache && \
-               docker compose up -d"
+              git pull && \
+              git submodule foreach --recursive 'git fetch origin && git checkout \$(git rev-parse HEAD)' && \
+              LAST_COMMIT_FILE=.last_commit_hash && \
+              LATEST_HASH=\$(git rev-parse HEAD) && \
+              if [ ! -f \$LAST_COMMIT_FILE ] || [ \"\$(cat \$LAST_COMMIT_FILE)\" != \"\$LATEST_HASH\" ]; then \
+                  echo 'Código mudou, rebuildando containers...' && \
+                  docker compose build && \
+                  docker compose up -d && \
+                  echo \$LATEST_HASH > \$LAST_COMMIT_FILE; \
+              else \
+                  echo 'Nenhuma mudança detectada, containers mantidos.'; \
+              fi"
