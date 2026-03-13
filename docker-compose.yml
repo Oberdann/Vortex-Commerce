@@ -1,19 +1,17 @@
 version: "3.9"
 
 services:
-  # postgres:
-  #   # image: postgres:15
-  #   # container_name: postgres
-  #   # ports:
-  #   #   - "5432:5432"
-  #   # environment:
-  #   #   POSTGRES_USER: ${POSTGRES_USER}
-  #   #   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   # volumes:
-  #   #   - postgres-data:/var/lib/postgresql/data
-  #   #   - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-  #   networks:
-  #     - evoapicloud_evolution_net
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   api-gateway:
     build: ./services/vortex-api-gateway
@@ -27,11 +25,9 @@ services:
       PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
       ORDERS_SERVICE_URL: ${ORDERS_SERVICE_URL}
       PAYMENTS_SERVICE_URL: ${PAYMENTS_SERVICE_URL}
-    # depends_on:
-    #   - rabbitmq
-    #   - otel-collector
-    networks:
-      - evoapicloud_evolution_net
+    depends_on:
+      - rabbitmq
+      - otel-collector
 
   products-service:
     build: ./services/vortex-products
@@ -44,130 +40,105 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
     networks:
       - evoapicloud_evolution_net
-    # depends_on:
-    #   - rabbitmq
-    #   - otel-collector
+    depends_on:
+      - rabbitmq
+      - otel-collector
 
-  # USERS
-  # users-service:
-  #   build: ./services/vortex-users
-  #   container_name: users-service
-  #   ports:
-  #     - "3001:3000"
-  #   environment:
-  #     NODE_ENV: development
-  #     DATABASE_URL: ${USERS_DB_URL}
-  #     OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-  #   depends_on:
-  #     - rabbitmq
-  #     - otel-collector
-  #   networks:
-  #     - evoapicloud_evolution_net
+  users-service:
+    build: ./services/vortex-users
+    container_name: users-service
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${USERS_DB_URL}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    depends_on:
+      - rabbitmq
+      - otel-collector
 
-  # ORDERS
-  # orders-service:
-  #   build: ./services/vortex-orders
-  #   container_name: orders-service
-  #   ports:
-  #     - "3003:3000"
-  #   environment:
-  #     NODE_ENV: development
-  #     DATABASE_URL: ${ORDERS_DB_URL}
-  #     OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-  #   depends_on:
-  #     - rabbitmq
-  #     - otel-collector
-  #   networks:
-  #     - evoapicloud_evolution_net
+  orders-service:
+    build: ./services/vortex-orders
+    container_name: orders-service
+    ports:
+      - "3003:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${ORDERS_DB_URL}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    depends_on:
+      - rabbitmq
+      - otel-collector
 
-  # PAYMENTS
-  # payments-service:
-  #   build: ./services/vortex-payments
-  #   container_name: payments-service
-  #   ports:
-  #     - "3004:3000"
-  #   environment:
-  #     NODE_ENV: development
-  #     DATABASE_URL: ${PAYMENTS_DB_URL}
-  #     OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-  #   depends_on:
-  #     - rabbitmq
-  #     - otel-collector
-  #   networks:
-  #     - evoapicloud_evolution_net
+  payments-service:
+    build: ./services/vortex-payments
+    container_name: payments-service
+    ports:
+      - "3004:3000"
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: ${PAYMENTS_DB_URL}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+    depends_on:
+      - rabbitmq
+      - otel-collector
 
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: rabbitmq
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
-  #   networks:
-  #     - evoapicloud_evolution_net
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
-  # otel-collector:
-  #   image: otel/opentelemetry-collector-contrib:latest
-  #   container_name: otel-collector
-  #   command: ["--config=/etc/otel/config.yml"]
-  #   volumes:
-  #     - ./observability/otel-collector.yml:/etc/otel/config.yml
-  #   ports:
-  #     - "4317:4317"
-  #     - "4318:4318"
-  #   depends_on:
-  #     - tempo
-  #     - loki
-  #   networks:
-  #     - evoapicloud_evolution_net
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yml"]
+    volumes:
+      - ./observability/otel-collector.yml:/etc/otel/config.yml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - tempo
+      - loki
 
-  # prometheus:
-  #   image: prom/prometheus
-  #   container_name: prometheus
-  #   volumes:
-  #     - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
-  #   ports:
-  #     - "9090:9090"
-  #   networks:
-  #     - evoapicloud_evolution_net
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
 
-  # loki:
-  #   image: grafana/loki:2.9.0
-  #   container_name: loki
-  #   ports:
-  #     - "3100:3100"
-  #   networks:
-  #     - evoapicloud_evolution_net
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: loki
+    ports:
+      - "3100:3100"
 
-  # tempo:
-  #   image: grafana/tempo:2.4.1
-  #   container_name: tempo
-  #   command: ["-config.file=/etc/tempo.yml"]
-  #   volumes:
-  #     - ./observability/tempo.yml:/etc/tempo.yml
-  #   ports:
-  #     - "3200:3200"
-  #     - "4317"
-  #   networks:
-  #     - evoapicloud_evolution_net
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./observability/tempo.yml:/etc/tempo.yml
+    ports:
+      - "3200:3200"
+      - "4317"
 
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   container_name: grafana
-  #   ports:
-  #     - "3005:3000"
-  #   volumes:
-  #     - grafana-storage:/var/lib/grafana
-  #   depends_on:
-  #     - prometheus
-  #     - loki
-  #     - tempo
-  #   networks:
-  #     - evoapicloud_evolution_net
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3005:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
 
 volumes:
   postgres-data:
   grafana-storage:
-
-networks:
-  evoapicloud_evolution_net:
-    external: true

@@ -1,0 +1,23 @@
+services:
+  api-gateway:
+    image: oberdanandrade/vortex-api-gateway:latest
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - products-service
+
+  products-service:
+    image: oberdanandrade/vortex-products:latest
+    container_name: products-service
+    restart: always
+    env_file: .env
+    ports:
+      - "4000:4000"
+
+networks:
+  default:
+    name: vortex-network
+    driver: bridge
