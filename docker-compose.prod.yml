@@ -19,5 +19,5 @@ services:
 
 networks:
   default:
-    name: vortex-network
+    name: vortex-commerce
     driver: bridge
