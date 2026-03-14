@@ -6,8 +6,8 @@ services:
     ports:
       - "3000:3000"
     env_file: .env
-    depends_on:
-      - products-service
+    networks:
+      - vortex-network
 
   products-service:
     image: oberdanandrade/vortex-products:latest
@@ -16,8 +16,9 @@ services:
     env_file: .env
     ports:
       - "4000:3000"
+    networks:
+      - vortex-network
 
 networks:
-  default:
-    name: vortex-network
+  vortex-network:
     driver: bridge
