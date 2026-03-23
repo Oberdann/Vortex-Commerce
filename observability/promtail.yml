@@ -1,0 +1,37 @@
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+
+    pipeline_stages:
+      - docker: {}
+
+      - json:
+          expressions:
+            service: service
+            level: level
+            traceId: traceId
+            spanId: spanId
+            method: req.method
+            url: req.url
+
+      - labels:
+          service:
+          level:
+          method:
+          status:
+          traceId:
+  
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/lib/docker/containers/*/*.log
