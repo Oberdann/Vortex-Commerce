@@ -40,3 +40,33 @@ scrape_configs:
       - source_labels: ["container"]
         target_label: "job"
 
+# DEV - LOG
+# scrape_configs:
+#   - job_name: docker
+
+#     pipeline_stages:
+#       - docker: {}
+
+#       - json:
+#           expressions:
+#             service: service
+#             level: level
+#             traceId: traceId
+#             spanId: spanId
+#             method: req.method
+#             url: req.url
+
+#       - labels:
+#           service:
+#           level:
+#           method:
+#           status:
+#           traceId:
+  
+#     static_configs:
+#       - targets:
+#           - localhost
+#         labels:
+#           job: docker
+#           __path__: /var/lib/docker/containers/*/*.log
+
