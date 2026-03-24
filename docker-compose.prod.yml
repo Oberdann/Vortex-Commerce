@@ -15,6 +15,14 @@ services:
     ports:
       - "4000:3000"
 
+  users-service:
+    image: oberdanandrade/vortex-users:latest
+    container_name: users-service
+    restart: always
+    env_file: .env
+    ports:
+      - "4000:3000"
+
 networks:
   default:
     name: vortex-network

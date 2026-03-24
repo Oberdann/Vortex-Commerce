@@ -4,3 +4,6 @@
 [submodule "services/vortex-products"]
 	path = services/vortex-products
 	url = git@github.com:Oberdann/Vortex-Products.git
+[submodule "services/vortex-users"]
+	path = services/vortex-users
+	url = git@github.com:Oberdann/Vortex-User.git
