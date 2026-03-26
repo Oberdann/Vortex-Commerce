@@ -31,6 +31,9 @@ scrape_configs:
           level:
           method:
           traceId:
+          
+      - static_labels:
+          job: docker
 
     relabel_configs:
       - source_labels: ["__meta_docker_container_name"]
@@ -66,7 +69,7 @@ scrape_configs:
 #           method:
 #           status:
 #           traceId:
-  
+
 #     static_configs:
 #       - targets:
 #           - localhost
