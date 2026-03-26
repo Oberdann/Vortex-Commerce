@@ -15,7 +15,17 @@ scrape_configs:
         refresh_interval: 5s
         filters:
           - name: name
-            regex: "^auth-service$|^users-service$|^products-service$|^orders-service$|^payment-service$|^notification-service$"
+            value: auth-service
+          - name: name
+            value: users-service
+          - name: name
+            value: products-service
+          - name: name
+            value: orders-service
+          - name: name
+            value: payment-service
+          - name: name
+            value: notification-service
 
 
     pipeline_stages:
