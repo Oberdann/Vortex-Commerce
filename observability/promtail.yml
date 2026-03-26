@@ -14,18 +14,12 @@ scrape_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
         filters:
-          - name: name
-            value: auth-service
-          - name: name
-            value: users-service
-          - name: name
-            value: products-service
-          - name: name
-            value: orders-service
-          - name: name
-            value: payment-service
-          - name: name
-            value: notification-service
+          - name: auth-service
+          - name: users-service
+          - name: products-service
+          - name: orders-service
+          - name: payment-service
+          - name: notification-service
 
 
     pipeline_stages:
