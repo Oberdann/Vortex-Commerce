@@ -26,12 +26,16 @@ scrape_configs:
             method: req.method
             url: req.url
 
+      - timestamp:
+          source: timestampMs
+          format: UnixMilli
+
       - labels:
           service:
           level:
           method:
           traceId:
-          
+
       - static_labels:
           job: docker
 
