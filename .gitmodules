@@ -9,3 +9,6 @@
 	url = git@github.com:Oberdann/Vortex-User.git
 [submodule "path/do/submodule"]
 	branch = main
+[submodule "services/vortex-auth"]
+	path = services/vortex-auth
+	url = git@github.com:Oberdann/Vortex-Auth.git
