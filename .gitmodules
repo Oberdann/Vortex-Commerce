@@ -7,3 +7,5 @@
 [submodule "services/vortex-users"]
 	path = services/vortex-users
 	url = git@github.com:Oberdann/Vortex-User.git
+[submodule "path/do/submodule"]
+	branch = main
