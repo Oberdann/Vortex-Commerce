@@ -15,4 +15,10 @@ scrape_configs:
     static_configs:
       # - targets: ["host.docker.internal:3002"]
       - targets: ["products-service:3002"]
+
+  - job_name: 'users-service'
+    metrics_path: /api/v1/metrics
+    static_configs:
+      # - targets: ["host.docker.internal:3003"]
+      - targets: ["users-service:3003"]
       
