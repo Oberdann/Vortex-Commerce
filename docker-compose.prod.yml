@@ -23,6 +23,14 @@ services:
     ports:
       - "4001:3000"
 
+  auth-service:
+    image: oberdanandrade/vortex-auth:latest
+    container_name: auth-service
+    restart: always
+    env_file: .env
+    ports:
+      - "4002:3000"
+
 networks:
   default:
     name: vortex-network
