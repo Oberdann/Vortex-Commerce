@@ -11,32 +11,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Install cloudflared
-        run: |
-          curl -LO https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
-          sudo mv cloudflared-linux-amd64 /usr/local/bin/cloudflared
-          sudo chmod +x /usr/local/bin/cloudflared
-          cloudflared version
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup SSH Key
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
-      - name: Deploy via Cloudflare Tunnel
+      - name: Add VPS to known_hosts
         env:
-          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_CLIENT_ID }}
-          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_HOST: ssh.pedrolg.site
+          VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
-          ssh -T -o StrictHostKeyChecking=no \
-              -o ProxyCommand="cloudflared access ssh --hostname $VPS_HOST --service-token-id $CF_ACCESS_CLIENT_ID --service-token-secret $CF_ACCESS_CLIENT_SECRET" \
-              $VPS_USER@$VPS_HOST \
-              "set -e && cd Vortex-Commerce && \
-              git pull && \
-              docker compose -f docker-compose.prod.yml pull && \
-              docker compose -f docker-compose.prod.yml up -d"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          ssh $VPS_USER@$VPS_HOST << 'EOF'
+            set -e
+
+            cd ~/projetos/Vortex-Commerce
+
+            git pull
+
+            docker compose -f docker-compose.prod.yml pull
+
+            docker compose -f docker-compose.prod.yml up -d
+          EOF
