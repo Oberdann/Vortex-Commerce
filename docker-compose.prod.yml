@@ -6,6 +6,8 @@ services:
     ports:
       - "3000:3000"
     env_file: .env
+    networks:
+      - vortex-network
 
   products-service:
     image: oberdanandrade/vortex-products:latest
@@ -14,6 +16,8 @@ services:
     env_file: .env
     ports:
       - "4000:3000"
+    networks:
+      - vortex-network
 
   users-service:
     image: oberdanandrade/vortex-users:latest
@@ -22,6 +26,8 @@ services:
     env_file: .env
     ports:
       - "4001:3000"
+    networks:
+      - vortex-network
 
   auth-service:
     image: oberdanandrade/vortex-auth:latest
@@ -30,8 +36,9 @@ services:
     env_file: .env
     ports:
       - "4002:3000"
+    networks:
+      - vortex-network
 
 networks:
-  default:
-    name: vortex-network
-    driver: bridge
+  vortex-network:
+    external: true
