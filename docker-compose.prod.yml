@@ -1,11 +1,26 @@
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - api-gateway
+    networks:
+      - vortex-network
+
   api-gateway:
     image: oberdanandrade/vortex-api-gateway:latest
     container_name: api-gateway
     restart: always
-    ports:
-      - "3000:3000"
     env_file: .env
+    expose:
+      - "3000"
     networks:
       - vortex-network
 
@@ -14,8 +29,8 @@ services:
     container_name: products-service
     restart: always
     env_file: .env
-    ports:
-      - "4000:3000"
+    expose:
+      - "3000"
     networks:
       - vortex-network
 
@@ -24,8 +39,8 @@ services:
     container_name: users-service
     restart: always
     env_file: .env
-    ports:
-      - "4001:3000"
+    expose:
+      - "3000"
     networks:
       - vortex-network
 
@@ -34,8 +49,8 @@ services:
     container_name: auth-service
     restart: always
     env_file: .env
-    ports:
-      - "4002:3000"
+    expose:
+      - "3000"
     networks:
       - vortex-network
 

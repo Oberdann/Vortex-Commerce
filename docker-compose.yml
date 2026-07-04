@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   postgres:
     image: postgres:15
@@ -20,14 +18,11 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_COLLECTOR_URL}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
       USERS_SERVICE_URL: ${USERS_SERVICE_URL}
       PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
       ORDERS_SERVICE_URL: ${ORDERS_SERVICE_URL}
       PAYMENTS_SERVICE_URL: ${PAYMENTS_SERVICE_URL}
-    depends_on:
-      - rabbitmq
-      - otel-collector
 
   products-service:
     build: ./services/vortex-products
@@ -38,57 +33,45 @@ services:
       NODE_ENV: development
       DATABASE_URL: ${PRODUCTS_DB_URL}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-    networks:
-      - evoapicloud_evolution_net
     depends_on:
-      - rabbitmq
-      - otel-collector
+      - postgres
 
-  users-service:
-    build: ./services/vortex-users
-    container_name: users-service
-    ports:
-      - "3001:3000"
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: ${USERS_DB_URL}
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-    depends_on:
-      - rabbitmq
-      - otel-collector
+  # users-service:
+  #   build: ./services/vortex-users
+  #   container_name: users-service
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     NODE_ENV: development
+  #     DATABASE_URL: ${USERS_DB_URL}
+  #     OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
 
-  orders-service:
-    build: ./services/vortex-orders
-    container_name: orders-service
-    ports:
-      - "3003:3000"
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: ${ORDERS_DB_URL}
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-    depends_on:
-      - rabbitmq
-      - otel-collector
+  # orders-service:
+  #   build: ./services/vortex-orders
+  #   container_name: orders-service
+  #   ports:
+  #     - "3003:3000"
+  #   environment:
+  #     NODE_ENV: development
+  #     DATABASE_URL: ${ORDERS_DB_URL}
+  #     OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
 
-  payments-service:
-    build: ./services/vortex-payments
-    container_name: payments-service
-    ports:
-      - "3004:3000"
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: ${PAYMENTS_DB_URL}
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
-    depends_on:
-      - rabbitmq
-      - otel-collector
+  # payments-service:
+  #   build: ./services/vortex-payments
+  #   container_name: payments-service
+  #   ports:
+  #     - "3004:3000"
+  #   environment:
+  #     NODE_ENV: development
+  #     DATABASE_URL: ${PAYMENTS_DB_URL}
+  #     OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT}
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: rabbitmq
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
@@ -97,8 +80,8 @@ services:
     volumes:
       - ./observability/otel-collector.yml:/etc/otel/config.yml
     ports:
-      - "4317:4317"
       - "4318:4318"
+      - "4319:4319"
     depends_on:
       - tempo
       - loki
@@ -117,6 +100,16 @@ services:
     ports:
       - "3100:3100"
 
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./observability/promtail.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+
   tempo:
     image: grafana/tempo:2.4.1
     container_name: tempo
@@ -125,10 +118,10 @@ services:
       - ./observability/tempo.yml:/etc/tempo.yml
     ports:
       - "3200:3200"
-      - "4317"
+      - "4317:4317"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.2.0
     container_name: grafana
     ports:
       - "3005:3000"
@@ -142,3 +135,8 @@ services:
 volumes:
   postgres-data:
   grafana-storage:
+
+networks:
+  default:
+    name: vortex-network
+    driver: bridge
